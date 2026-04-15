@@ -1,0 +1,696 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kenesto – Version Control & Secure Sharing for CAD Teams</title>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #2EA3F2;
+      --teal: #05B3C6;
+      --teal-dark: #0499aa;
+      --blue-dark: #1a8fd4;
+      --orange: #E87722;
+      --text-dark: #333333;
+      --text-mid: #666666;
+      --text-light: #888888;
+      --bg-light: #f7f9fb;
+      --border: #E2E2E2;
+      --white: #ffffff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Open Sans', Arial, sans-serif;
+      color: var(--text-dark);
+      background: var(--white);
+      font-size: 14px;
+      line-height: 1.7em;
+      overflow-x: hidden;
+    }
+
+    /* ── SCROLL ANIMATIONS ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s cubic-bezier(0.77,0,0.175,1), transform 0.6s cubic-bezier(0.77,0,0.175,1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      background: var(--blue);
+      color: #fff;
+      font-size: 12px;
+      padding: 7px 0;
+      text-align: center;
+    }
+    .top-bar a { color: #fff; text-decoration: none; margin: 0 16px; }
+    .top-bar a:hover { text-decoration: underline; }
+
+    /* ── NAVBAR ── */
+    nav {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .nav-inner {
+      max-width: 1080px;
+      width: 80%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+    }
+    .nav-logo a { display: block; line-height: 1; }
+    .nav-logo img { height: 40px; width: auto; display: block; }
+    .nav-actions { display: flex; gap: 10px; align-items: center; }
+    .btn {
+      display: inline-block;
+      padding: 0.3em 1.2em;
+      border-radius: 3px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Open Sans', Arial, sans-serif;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      line-height: 1.7em;
+      border: 2px solid transparent;
+    }
+    .btn-outline {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: transparent;
+    }
+    .btn-outline:hover { background: var(--blue); color: #fff; }
+    .btn-primary {
+      background: var(--teal);
+      color: #fff;
+      border-color: var(--teal);
+    }
+    .btn-primary:hover { background: var(--teal-dark); border-color: var(--teal-dark); }
+    .btn-lg {
+      padding: 0.5em 2em;
+      font-size: 15px;
+      border-radius: 3px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: #fff;
+      padding: 72px 0 64px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-inner {
+      max-width: 1080px;
+      width: 80%;
+      margin: 0 auto;
+    }
+    .hero h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-dark);
+      line-height: 1.3em;
+      margin-bottom: 18px;
+    }
+    .hero h1 span { color: var(--blue); }
+    .hero p {
+      font-size: 16px;
+      color: var(--text-mid);
+      max-width: 640px;
+      margin: 0 auto 32px;
+      line-height: 1.8em;
+    }
+    .hero-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .hero-badge {
+      margin-top: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--text-light);
+      font-size: 12px;
+    }
+    .hero-badge span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg-light);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: var(--text-mid);
+    }
+
+    /* ── SECTION COMMON ── */
+    .section { padding: 60px 0; }
+    .section-inner {
+      max-width: 1080px;
+      width: 80%;
+      margin: 0 auto;
+    }
+    .section-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-align: center;
+      margin-bottom: 12px;
+      line-height: 1.3em;
+    }
+    .section-sub {
+      text-align: center;
+      color: var(--text-mid);
+      font-size: 15px;
+      max-width: 600px;
+      margin: 0 auto 48px;
+      line-height: 1.8em;
+    }
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 10px;
+    }
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 28px;
+      height: 2px;
+      background: var(--blue);
+    }
+
+    /* ── WHAT IS KENESTO ── */
+    .about-section { background: var(--bg-light); }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .about-text h2 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 16px;
+      line-height: 1.3em;
+    }
+    .about-text p {
+      color: var(--text-mid);
+      margin-bottom: 14px;
+      font-size: 14px;
+      line-height: 1.8em;
+    }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .feature-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--blue);
+      border-radius: 3px;
+      padding: 28px 24px;
+      text-align: center;
+      transition: box-shadow 0.2s;
+    }
+    .feature-card:hover { box-shadow: 0 4px 18px rgba(46,163,242,0.10); }
+    .feature-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #e8f5fe;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .feature-icon svg { width: 24px; height: 24px; fill: var(--blue); }
+    .feature-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+    .feature-card p { color: var(--text-mid); font-size: 13px; line-height: 1.7em; }
+
+    /* ── WHAT YOU GET ── */
+    .benefits-section { background: var(--bg-light); }
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .benefit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 16px 18px;
+    }
+    .benefit-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--teal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .benefit-check svg { width: 12px; height: 12px; fill: #fff; }
+    .benefit-item span { font-size: 13px; color: var(--text-dark); font-weight: 500; line-height: 1.5em; }
+
+    /* ── PARTNERS ── */
+    .partners-section { background: #fff; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .partners-inner { text-align: center; }
+    .partners-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin-bottom: 28px;
+    }
+    .partners-logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 32px;
+    }
+    .partner-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-light);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 10px 18px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-mid);
+    }
+    .partner-badge svg { width: 16px; height: 16px; fill: var(--blue); }
+    .security-note {
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--text-light);
+    }
+
+    /* ── TESTIMONIALS ── */
+    .testimonials-section { background: var(--bg-light); }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .testimonial-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 28px 24px;
+      position: relative;
+    }
+    .quote-mark {
+      font-size: 48px;
+      line-height: 1;
+      color: var(--blue);
+      opacity: 0.2;
+      font-family: Georgia, serif;
+      position: absolute;
+      top: 12px;
+      left: 20px;
+    }
+    .testimonial-card p {
+      color: var(--text-mid);
+      font-size: 13px;
+      line-height: 1.8em;
+      margin-bottom: 20px;
+      padding-top: 16px;
+      font-style: italic;
+    }
+    .testimonial-author {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    .testimonial-role {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+
+    /* ── CTA BANNER ── */
+    .cta-section {
+      background: var(--blue);
+      padding: 60px 0;
+      text-align: center;
+    }
+    .cta-section h2 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .cta-section p {
+      color: rgba(255,255,255,0.85);
+      font-size: 15px;
+      margin-bottom: 32px;
+    }
+    .cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .btn-white {
+      background: #fff;
+      color: var(--blue);
+      border: 2px solid #fff;
+    }
+    .btn-white:hover { background: transparent; color: #fff; }
+    .btn-outline-white {
+      background: transparent;
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.7);
+    }
+    .btn-outline-white:hover { background: rgba(255,255,255,0.15); border-color: #fff; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #333;
+      color: rgba(255,255,255,0.7);
+      padding: 40px 0 24px;
+    }
+    .footer-inner {
+      max-width: 1080px;
+      width: 80%;
+      margin: 0 auto;
+    }
+    .footer-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 40px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      flex-wrap: wrap;
+    }
+    .footer-logo { margin-bottom: 12px; }
+    .footer-logo img { height: 32px; width: auto; filter: brightness(0) invert(1); opacity: 0.85; }
+    .footer-desc { font-size: 12px; line-height: 1.7em; max-width: 240px; }
+    .footer-contact { font-size: 12px; }
+    .footer-contact a { color: rgba(255,255,255,0.7); text-decoration: none; }
+    .footer-contact a:hover { color: #fff; }
+    .footer-contact p { margin-bottom: 6px; }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .footer-links a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 12px; font-weight: 600; }
+    .footer-links a:hover { color: #fff; }
+    .footer-bottom {
+      padding-top: 20px;
+      text-align: center;
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 980px) {
+      .nav-inner { width: 90%; }
+      .hero-inner, .section-inner, .footer-inner { width: 90%; }
+      .features-grid { grid-template-columns: 1fr 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr 1fr; }
+      .about-grid { grid-template-columns: 1fr; gap: 32px; }
+    }
+    @media (max-width: 767px) {
+      .hero h1 { font-size: 24px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .benefits-grid { grid-template-columns: 1fr; }
+      .footer-top { flex-direction: column; gap: 24px; }
+      .footer-links { flex-direction: column; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <a href="tel:+17817807400">+1-781-780-7400</a>
+    <a href="mailto:support@kenesto.com">support@kenesto.com</a>
+  </div>
+
+  <!-- NAVBAR -->
+  <nav>
+    <div class="nav-inner">
+      <div class="nav-logo">
+        <a href="https://www.kenesto.com/" target="_blank" rel="noopener">
+          <img src="https://www.kenesto.com/wp-content/uploads/2021/11/Kenesto_2C_Logo.png" alt="Kenesto" />
+        </a>
+      </div>
+      <div class="nav-actions">
+        <a href="https://calendly.com/kenesto-sales/new-meeting" target="_blank" class="btn btn-outline">Book a Demo</a>
+        <a href="https://www.kenesto.com/sign-up?ls=12" target="_blank" class="btn btn-primary">Start Free Trial</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner reveal">
+      <h1>Version control &amp; secure sharing<br>for <span>CAD teams</span></h1>
+      <p>Kenesto keeps your files locked, versioned, and securely shared in the cloud without slowing your team down.</p>
+      <div class="hero-ctas">
+        <a href="https://www.kenesto.com/sign-up?ls=12" target="_blank" class="btn btn-primary btn-lg">Start Free Trial – 14 Days</a>
+        <a href="https://calendly.com/kenesto-sales/new-meeting" target="_blank" class="btn btn-outline btn-lg">Book a Demo</a>
+      </div>
+      <div class="hero-badge">
+        <span>
+          <svg viewBox="0 0 20 20" width="13" height="13" fill="#05B3C6"><path d="M10 1a9 9 0 100 18A9 9 0 0010 1zm4.22 6.47l-5 5a.75.75 0 01-1.06 0l-2-2a.75.75 0 011.06-1.06l1.47 1.47 4.47-4.47a.75.75 0 011.06 1.06z"/></svg>
+          No credit card required
+        </span>
+        <span>
+          <svg viewBox="0 0 20 20" width="13" height="13" fill="#05B3C6"><path d="M10 1a9 9 0 100 18A9 9 0 0010 1zm4.22 6.47l-5 5a.75.75 0 01-1.06 0l-2-2a.75.75 0 011.06-1.06l1.47 1.47 4.47-4.47a.75.75 0 011.06 1.06z"/></svg>
+          14 days free
+        </span>
+        <span>
+          <svg viewBox="0 0 20 20" width="13" height="13" fill="#05B3C6"><path d="M10 1a9 9 0 100 18A9 9 0 0010 1zm4.22 6.47l-5 5a.75.75 0 01-1.06 0l-2-2a.75.75 0 011.06-1.06l1.47 1.47 4.47-4.47a.75.75 0 011.06 1.06z"/></svg>
+          Built for engineers
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="section about-section">
+    <div class="section-inner">
+      <div class="about-grid">
+        <div class="about-text reveal">
+          <div class="section-label">What is Kenesto?</div>
+          <h2>The alternative to traditional PDM</h2>
+          <p>Kenesto is a cloud-based document management system designed by engineers for engineers and designers, delivering a robust alternative to traditional PDM solutions.</p>
+          <p>With the Kenesto Drive service on a PC, CAD and other applications work directly with cloud documents just like a local drive, always ensuring access to the most current document.</p>
+          <p>Kenesto provides the tools needed to share, view, collaborate with external users, manage permissions, create versions, and lock documents for day-to-day work.</p>
+          <a href="https://www.kenesto.com/sign-up?ls=12" target="_blank" class="btn btn-primary" style="margin-top:12px;">Try Free for 14 Days</a>
+        </div>
+        <div class="reveal">
+          <!-- WHAT YOU GET -->
+          <div style="background:#fff; border:1px solid var(--border); border-radius:3px; padding:28px 24px;">
+            <div class="section-label" style="margin-bottom:18px;">What you get with Kenesto</div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div class="benefit-item">
+                <div class="benefit-check"><svg viewBox="0 0 12 12"><path d="M1 6l3.5 3.5L11 2"/></svg></div>
+                <span>Version Control – Track and manage file versions</span>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-check"><svg viewBox="0 0 12 12"><path d="M1 6l3.5 3.5L11 2"/></svg></div>
+                <span>Secure Sharing &amp; Permissions – Decide who can view, download, or edit</span>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-check"><svg viewBox="0 0 12 12"><path d="M1 6l3.5 3.5L11 2"/></svg></div>
+                <span>Smart File Locking – Automatic locking ensures everyone works on the right version</span>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-check"><svg viewBox="0 0 12 12"><path d="M1 6l3.5 3.5L11 2"/></svg></div>
+                <span>Works like a local drive – CAD apps access cloud files seamlessly</span>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-check"><svg viewBox="0 0 12 12"><path d="M1 6l3.5 3.5L11 2"/></svg></div>
+                <span>Collaborate with external users – Share securely outside your team</span>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-check"><svg viewBox="0 0 12 12"><path d="M1 6l3.5 3.5L11 2"/></svg></div>
+                <span>AES-256 encryption – Enterprise-grade data security</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 CORE FEATURES -->
+  <section class="section">
+    <div class="section-inner">
+      <p class="section-label" style="justify-content:center;">Core Features</p>
+      <h2 class="section-title">Everything your engineering team needs</h2>
+      <p class="section-sub">Purpose-built for engineering, design, and construction teams.</p>
+      <div class="features-grid">
+
+        <div class="feature-card reveal">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+          </div>
+          <h3>Version Control</h3>
+          <p>Track and manage file versions automatically. Always know who changed what and when.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+          </div>
+          <h3>Secure Sharing &amp; Permissions</h3>
+          <p>Decide who can view, download, or edit. Share securely with external partners and clients.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24"><path d="M17 11c.34 0 .67.03 1 .08V6.27L10.5 3 3 6.27v4.91c0 4.54 3.2 8.79 7.5 9.82.55-.13 1.08-.32 1.6-.55C11.41 19.47 11 18.28 11 17c0-3.31 2.69-6 6-6zm-6.5 1L3 8.27V6.27l7.5-3.27 7.5 3.27v1.91l-7.5 3.82zM17 13c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 1.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5zm0 5c-1.11 0-2.08-.56-2.66-1.42.38-.24.83-.38 1.32-.38h2.68c.49 0 .94.14 1.32.38C19.08 19.94 18.11 20.5 17 20.5z"/></svg>
+          </div>
+          <h3>Smart File Locking</h3>
+          <p>Automatic locking and permissions ensure everyone works on the right version, every time.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- PARTNERS -->
+  <section class="section partners-section" style="padding:36px 0;">
+    <div class="section-inner partners-inner">
+      <p class="partners-label">Trusted partnerships &amp; certifications</p>
+      <div class="partners-logos">
+        <div class="partner-badge">
+          <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+          Certified SolidWorks Solution Partner
+        </div>
+        <div class="partner-badge">
+          <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+          Autodesk Solution Partner
+        </div>
+        <div class="partner-badge">
+          <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+          DraftSight Partner
+        </div>
+        <div class="partner-badge">
+          <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+          Built on AWS
+        </div>
+      </div>
+      <p class="security-note">AES-256 encryption &bull; Backups &bull; Disaster recovery protocols</p>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="section testimonials-section">
+    <div class="section-inner">
+      <p class="section-label" style="justify-content:center;">What our customers say</p>
+      <h2 class="section-title">Trusted by engineering teams worldwide</h2>
+      <p class="section-sub" style="margin-bottom:36px;">Real feedback from engineers and designers using Kenesto every day.</p>
+      <div class="testimonials-grid">
+
+        <div class="testimonial-card reveal">
+          <div class="quote-mark">"</div>
+          <p>Kenesto stands out as a leader in forward-thinking online engineering data management. We now have a secure, cloud-based solution for document management, collaboration and version control, accessible from wherever we are in the world.</p>
+          <div class="testimonial-author">Josh Adams, PE</div>
+          <div class="testimonial-role">Founding Principal, Apollo Engineering Design Group</div>
+        </div>
+
+        <div class="testimonial-card reveal">
+          <div class="quote-mark">"</div>
+          <p>Kenesto is more than a collaboration tool – it's fully-customizable to work with your processes and designs, and it provides a virtual workspace to store, view, and manage your data.</p>
+          <div class="testimonial-author">Elise Moss</div>
+          <div class="testimonial-role">Senior Mechanical/Thermal Engineer</div>
+        </div>
+
+        <div class="testimonial-card reveal">
+          <div class="quote-mark">"</div>
+          <p>We've switched to Kenesto this year and it has been great. Enjoying no longer chasing around loose ends caused by mismatched master assembly versions.</p>
+          <div class="testimonial-author">Kenesto Customer</div>
+          <div class="testimonial-role">via Reddit</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <section class="cta-section">
+    <div class="section-inner reveal">
+      <h2>Work with your documents, your way.</h2>
+      <p>Join engineering teams worldwide who trust Kenesto for version control and secure file sharing.</p>
+      <div class="cta-btns">
+        <a href="https://www.kenesto.com/sign-up?ls=12" target="_blank" class="btn btn-white btn-lg">Start Free Trial – 14 Days</a>
+        <a href="https://calendly.com/kenesto-sales/new-meeting" target="_blank" class="btn btn-outline-white btn-lg">Book a Demo</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div>
+          <div class="footer-logo">
+            <img src="https://www.kenesto.com/wp-content/uploads/2021/11/Kenesto_2C_Logo.png" alt="Kenesto" />
+          </div>
+          <p class="footer-desc">Cloud-based document management for engineering, design, and construction.</p>
+        </div>
+        <div class="footer-contact">
+          <p><a href="tel:+17817807400">+1-781-780-7400</a></p>
+          <p><a href="mailto:support@kenesto.com">support@kenesto.com</a></p>
+        </div>
+        <div class="footer-links">
+          <a href="https://calendly.com/kenesto-sales/new-meeting" target="_blank">Book a Demo</a>
+          <a href="https://www.kenesto.com/sign-up?ls=12" target="_blank">Start Free Trial</a>
+          <a href="https://www.kenesto.com/" target="_blank">kenesto.com</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2026 Kenesto. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>
